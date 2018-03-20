@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="node_modules/phaser/dist/phaser.js"></script>
+</head>
+<body>
+
+    <script>
+
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 0 }
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+
+    function preload ()
+    {
+
+        this.load.image('orc', 'assets/orc.png');
+    }
+
+    function create ()
+    {
+        that = this;
+        players = [];
+        cursors = game.input.keyboard.createCursorKeys();
+
+
+        conn = new WebSocket('ws://localhost:8080');
+        conn.onopen = function(e) {
+            console.log("Connection established!");
+
+        };
+        conn.onmessage = function(e) {
+          var data = JSON.parse(e.data);
+            if(data[0] == 'message'){
+
+            } else if(data[0] == 'player') {
+                  console.log(data);
+                  var serverPlayers = data[1];
+
+                  for (var playerId in serverPlayers) {
+                    var currentPlayer = serverPlayers[playerId]
+                    player = that.physics.add.sprite( currentPlayer.xPos, currentPlayer.yPos, 'orc');
+                    player.body.collideWorldBounds = true;
+                    player.body.gravity.y = 0.0;
+                    player.connectionId = playerId;
+                    players.push(player)
+                  }
+            } else {
+
+                var movement = data[1];
+                console.log(movement);
+                for(var z = 0; z < players.length; z++){
+                  var playerId = players[z].connectionId;
+                  players[z].x = movement[playerId].xPos;
+                  players[z].y = movement[playerId].yPos;
+                }
+            }
+        };
+    }
+
+    function update () {
+       if (cursors.left.isDown) {
+         var velocity  = [-5, 0];
+         conn.send(JSON.stringify(velocity));
+       } else if (cursors.right.isDown) {
+         var velocity  = [5, 0];
+         conn.send(JSON.stringify(velocity));
+       } else if (cursors.up.isDown) {
+         var velocity  = [0, -5];
+         conn.send(JSON.stringify(velocity));
+       } else if (cursors.down.isDown) {
+         var velocity  = [0, 5];
+         conn.send(JSON.stringify(velocity));
+       } 
+    }
+    </script>
+
+</body>
+</html>

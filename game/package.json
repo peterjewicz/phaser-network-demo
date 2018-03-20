@@ -1,0 +1,15 @@
+{
+  "name": "gametest",
+  "version": "1.0.0",
+  "description": "Real time with phaser test",
+  "main": "index.js",
+  "dependencies": {
+    "phaser": "^3.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Peter Jewicz",
+  "license": "ISC"
+}
